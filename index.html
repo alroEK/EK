@@ -36,31 +36,6 @@
       position:relative;
     }
 
-    /* Track (den mørke ring bag segmenterne) */
-    .track{
-      position:absolute;
-      inset:18px;
-      border-radius:50%;
-      background:var(--gap);
-      /* lav den til en ring (hul i midten) */
-      -webkit-mask: radial-gradient(
-        circle,
-        transparent calc(50% - 18px),
-        #000       calc(50% - 18px) 50%,
-        transparent 50%
-      );
-      mask: radial-gradient(
-        circle,
-        transparent calc(50% - 18px),
-        #000       calc(50% - 18px) 50%,
-        transparent 50%
-      );
-      /* lille outline som i dit billede */
-      box-shadow:
-        0 0 0 6px rgba(0,0,0,.18),
-        inset 0 0 0 2px rgba(255,255,255,.04);
-    }
-
     /* Selve segment-laget som kan spinnes */
     .spinLayer{
       position:absolute;
