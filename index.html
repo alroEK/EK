@@ -1,183 +1,146 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="da">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Roulette Ring</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Min HTML Øveside</title>
+
+  <!-- Lidt styling kun så den er nem at læse (ikke vigtigt for HTML-struktur) -->
   <style>
-    :root{
-      --bg:   #262230;   /* baggrund (fra dit billede) */
-      --gap:  #33313a;   /* ring “track” mellem segmenter */
-      --g:    #505050;   /* grå */
-      --r:    #c83048;   /* rød */
-      --b:    #40b0d8;   /* blå/cyan */
-      --o:    #f8c870;   /* guld */
-    }
-
-    body{
-      margin:0;
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      background:var(--bg);
-      font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      color:#ddd;
-    }
-
-    .board{
-      display:grid;
-      gap:14px;
-      justify-items:center;
-    }
-
-    .roulette{
-      width:460px;
-      height:460px;
-      position:relative;
-    }
-
-    /* Selve segment-laget som kan spinnes */
-    .spinLayer{
-      position:absolute;
-      inset:0;
-      transform: rotate(0deg);
-      transition: transform 3.8s cubic-bezier(.12,.9,.2,1);
-    }
-
-    .segment{
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:22px;      /* dash-længde */
-      height:7px;      /* dash-tykkelse */
-      border-radius:2px;
-      background:var(--g);
-      /* placer rundt på cirklen */
-      transform:
-        translate(-50%,-50%)
-        rotate(var(--a))
-        translateX(208px)
-        rotate(90deg);
-      box-shadow: 0 2px 6px rgba(0,0,0,.25);
-    }
-    
-    :root{
-  --bg:   #262230;
-  --gap:  #33313a;
-  --g:    #505050;
-  --r:    #c83048;
-  --b:    #40b0d8;
-  --o:    #f8c870;
-
-  --p: var(--g);  /* <- NY: pointer-farve (starter grå) */
-}
-
-/* Pil nederst (nu peger den NED) */
-.pointer{
-  position:absolute;
-  left:50%;
-  bottom:54px;
-  transform: translateX(-50%);
-  width:0; height:0;
-  border-left:12px solid transparent;
-  border-right:12px solid transparent;
-
-  border-top:22px solid var(--p);   /* <- NY: peger NED + bruger --p */
-  /* fjern border-bottom */
-  filter: drop-shadow(0 8px 10px rgba(0,0,0,.35));
-}
-
-
-    /* (Valgfrit) lille klik-knap */
-    .btn{
-      padding:10px 14px;
-      border:0;
-      border-radius:10px;
-      background:#ff4d6d;
-      color:#fff;
-      font-weight:700;
-      cursor:pointer;
-    }
-    .btn:disabled{opacity:.55; cursor:not-allowed;}
-
-    .out{opacity:.85; font-size:14px;}
-    @media (max-width:520px){
-      .roulette{width:360px;height:360px;}
-      .track{inset:14px;}
-      .segment{
-        transform:
-          translate(-50%,-50%)
-          rotate(var(--a))
-          translateX(162px)
-          rotate(90deg);
-      }
-      .pointer{bottom:44px;}
-    }
+    body { font-family: Arial, sans-serif; line-height: 1.5; max-width: 900px; margin: 24px auto; padding: 0 16px; }
+    nav a { margin-right: 12px; }
+    section { padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin: 14px 0; }
+    code { background: #f5f5f5; padding: 2px 6px; border-radius: 6px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
   </style>
 </head>
 
 <body>
-  <div class="board">
-    <div class="roulette">
-      <div class="track"></div>
-      <div id="spinLayer" class="spinLayer"></div>
-      <div class="pointer"></div>
-    </div>
+  <!-- 1) Header: “toppen” af siden -->
+  <header>
+    <h1>Min HTML Øveside</h1>
+    <p>Formål: Træne basal HTML-struktur og de vigtigste tags.</p>
+  </header>
 
-    <!-- Valgfrit: spin-knap -->
-    <button id="spinBtn" class="btn">Spin (demo)</button>
-    <div id="out" class="out">—</div>
-  </div>
+  <!-- 2) Navigation: links til sektioner på samme side -->
+  <nav>
+    <a href="#tekst">Tekst</a>
+    <a href="#links">Links</a>
+    <a href="#lister">Lister</a>
+    <a href="#billeder">Billeder</a>
+    <a href="#tabel">Tabel</a>
+    <a href="#formular">Formular</a>
+  </nav>
 
-  <script>
-    const spinLayer = document.getElementById("spinLayer");
-    const btn = document.getElementById("spinBtn");
-    const out = document.getElementById("out");
+  <!-- 3) Main: hovedindholdet -->
+  <main>
+    <section id="tekst">
+      <h2>1) Tekst og struktur</h2>
+      <p>Dette er en paragraf med <strong>vigtig tekst</strong> og <em>fremhævet tekst</em>.</p>
+      <p>
+        Brug overskrifter til struktur: <code>&lt;h1&gt;</code> til <code>&lt;h6&gt;</code>.
+        Typisk kun én <code>&lt;h1&gt;</code> på en side.
+      </p>
+      <hr />
+      <p>Her er et linjeskift<br />midt i en paragraf.</p>
 
-    // Farvemønsteret (54 dashes) matchet til billedet:
-    // G=grå, R=rød, B=blå, O=guld
-    const pattern = "GRGRGBOBGRGRGRGBGBGRGRGRGBGBGRGRGRGRGRGBGBGRGRGRGBGBGR";
+      <!-- Øvelse: Tilføj en h3 og en ny paragraf under -->
+    </section>
 
-    const cssColor = {
-      G: "var(--g)",
-      R: "var(--r)",
-      B: "var(--b)",
-      O: "var(--o)"
-    };
+    <section id="links">
+      <h2>2) Links (a)</h2>
+      <p>
+        Et link ser sådan ud:
+        <a href="https://www.w3schools.com/" target="_blank" rel="noopener">W3Schools</a>
+      </p>
 
-    const N = pattern.length;
-    const step = 360 / N;
+      <!-- Øvelse: Lav et link til din skole eller en favorit-side -->
+    </section>
 
-    // Byg segmenterne
-    for (let i = 0; i < N; i++) {
-      const seg = document.createElement("div");
-      seg.className = "segment";
-      seg.style.setProperty("--a", `${i * step}deg`);
-      seg.style.background = cssColor[pattern[i]];
-      spinLayer.appendChild(seg);
-    }
+    <section id="lister">
+      <h2>3) Lister (ul/ol/li)</h2>
 
-    // (Valgfrit) “spin” der stopper et tilfældigt sted under pilen nederst
-    let rotation = 0;
-    btn.addEventListener("click", () => {
-      btn.disabled = true;
-      out.textContent = "Spinner…";
+      <h3>Unordered list (punkter)</h3>
+      <ul>
+        <li>HTML = struktur</li>
+        <li>CSS = styling</li>
+        <li>JavaScript = adfærd</li>
+      </ul>
 
-      const winner = Math.floor(Math.random() * N);
-      const targetAngle = winner * step;      // dash vinkel (0° = højre)
-      const pointerAngle = 90;               // nederst på skærmen
-      const current = ((rotation % 360) + 360) % 360;
-      const needed = pointerAngle - ((targetAngle + current) % 360);
+      <h3>Ordered list (nummereret)</h3>
+      <ol>
+        <li>Lav filen</li>
+        <li>Åbn i browser</li>
+        <li>Redigér og refresh</li>
+      </ol>
 
-      rotation += 360 * 6 + needed;          // 6 omgange + justering
-      spinLayer.style.transform = `rotate(${rotation}deg)`;
+      <!-- Øvelse: Tilføj 3 nye punkter til begge lister -->
+    </section>
 
-      setTimeout(() => {
-        document.documentElement.style.setProperty("--p", cssColor[pattern[winner]]);
-        out.textContent = `Stop: ${pattern[winner]} (G=grå, R=rød, B=blå, O=guld)`;
-        btn.disabled = false;
-      }, 3900);
-    });
-  </script>
+    <section id="billeder">
+      <h2>4) Billeder (img)</h2>
+      <p>Et billede bruger <code>src</code> og <code>alt</code> (alt er vigtigt).</p>
+
+      <img
+        src="https://via.placeholder.com/600x200"
+        alt="Placeholder-billede til øvelse"
+        width="600"
+      />
+
+      <!-- Øvelse: Find et andet billede-link og skift src + alt -->
+    </section>
+
+    <section id="tabel">
+      <h2>5) Tabel (table)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Tag</th>
+            <th>Hvad bruges det til?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&lt;p&gt;</td>
+            <td>Paragraf</td>
+          </tr>
+          <tr>
+            <td>&lt;a&gt;</td>
+            <td>Link</td>
+          </tr>
+          <tr>
+            <td>&lt;img&gt;</td>
+            <td>Billede</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Øvelse: Tilføj 2 ekstra rækker med tags -->
+    </section>
+
+    <section id="formular">
+      <h2>6) Formular (form + input)</h2>
+      <form>
+        <label for="navn">Navn:</label><br />
+        <input id="navn" name="navn" type="text" placeholder="Skriv dit navn" /><br /><br />
+
+        <label for="email">Email:</label><br />
+        <input id="email" name="email" type="email" placeholder="navn@mail.com" /><br /><br />
+
+        <label for="besked">Besked:</label><br />
+        <textarea id="besked" name="besked" rows="4" placeholder="Skriv noget..."></textarea><br /><br />
+
+        <button type="submit">Send</button>
+      </form>
+
+      <!-- Øvelse: Tilføj en checkbox: "Jeg accepterer" -->
+    </section>
+  </main>
+
+  <!-- 4) Footer: bunden af siden -->
+  <footer>
+    <p>Lavede jeg i dag: <time datetime="2026-02-19">19/02/2026</time></p>
+  </footer>
 </body>
 </html>
