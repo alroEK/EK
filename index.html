@@ -3,103 +3,191 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Roulette prototype</title>
+  <title>Roulette Ring</title>
   <style>
+    :root{
+      --bg:   #262230;   /* baggrund (fra dit billede) */
+      --gap:  #33313a;   /* ring “track” mellem segmenter */
+      --g:    #505050;   /* grå */
+      --r:    #c83048;   /* rød */
+      --b:    #40b0d8;   /* blå/cyan */
+      --o:    #f8c870;   /* guld */
+    }
+
     body{
-      margin:0; min-height:100vh; display:grid; place-items:center;
-      background:#14131a; color:#eaeaf0; font-family:system-ui, sans-serif;
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background:var(--bg);
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color:#ddd;
     }
-    .wrap{ display:grid; gap:16px; justify-items:center; }
-    .stage{ position:relative; width:320px; height:320px; }
-    .wheel{
-      width:100%; height:100%;
+
+    .board{
+      display:grid;
+      gap:14px;
+      justify-items:center;
+    }
+
+    .roulette{
+      width:460px;
+      height:460px;
+      position:relative;
+    }
+
+    /* Track (den mørke ring bag segmenterne) */
+    .track{
+      position:absolute;
+      inset:18px;
       border-radius:50%;
-      border:10px solid #2a2933;
-      /* simple “segments” look */
-      background: conic-gradient(
-        #d44 0 10%, #2bb 10% 20%, #555 20% 30%, #d44 30% 40%,
-        #2bb 40% 50%, #555 50% 60%, #d44 60% 70%, #2bb 70% 80%,
-        #555 80% 90%, #d44 90% 100%
+      background:var(--gap);
+      /* lav den til en ring (hul i midten) */
+      -webkit-mask: radial-gradient(
+        circle,
+        transparent calc(50% - 18px),
+        #000       calc(50% - 18px) 50%,
+        transparent 50%
       );
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      mask: radial-gradient(
+        circle,
+        transparent calc(50% - 18px),
+        #000       calc(50% - 18px) 50%,
+        transparent 50%
+      );
+      /* lille outline som i dit billede */
+      box-shadow:
+        0 0 0 6px rgba(0,0,0,.18),
+        inset 0 0 0 2px rgba(255,255,255,.04);
+    }
+
+    /* Selve segment-laget som kan spinnes */
+    .spinLayer{
+      position:absolute;
+      inset:0;
       transform: rotate(0deg);
-      transition: transform 4s cubic-bezier(.12,.9,.2,1);
+      transition: transform 3.8s cubic-bezier(.12,.9,.2,1);
     }
-    .center{
-      position:absolute; inset:0; margin:auto;
-      width:70px; height:70px; border-radius:50%;
-      background:#1f1e28; border:8px solid #2a2933;
-      display:grid; place-items:center; font-weight:700;
+
+    .segment{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:22px;      /* dash-længde */
+      height:7px;      /* dash-tykkelse */
+      border-radius:2px;
+      background:var(--g);
+      /* placer rundt på cirklen */
+      transform:
+        translate(-50%,-50%)
+        rotate(var(--a))
+        translateX(208px)
+        rotate(90deg);
+      box-shadow: 0 2px 6px rgba(0,0,0,.25);
     }
+
+    /* Pil nederst */
     .pointer{
-      position:absolute; top:-6px; left:50%;
-      width:0; height:0;
+      position:absolute;
+      left:50%;
+      bottom:54px;
       transform: translateX(-50%);
-      border-left:14px solid transparent;
-      border-right:14px solid transparent;
-      border-bottom:26px solid #ff4d6d;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.45));
+      width:0; height:0;
+      border-left:12px solid transparent;
+      border-right:12px solid transparent;
+      border-bottom:22px solid var(--r); /* peger OP */
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,.35));
     }
-    button{
-      padding:10px 16px; border:0; border-radius:10px;
-      background:#ff4d6d; color:white; font-weight:700;
+
+    /* (Valgfrit) lille klik-knap */
+    .btn{
+      padding:10px 14px;
+      border:0;
+      border-radius:10px;
+      background:#ff4d6d;
+      color:#fff;
+      font-weight:700;
       cursor:pointer;
     }
-    button:disabled{ opacity:.5; cursor:not-allowed; }
-    .result{ opacity:.85; }
+    .btn:disabled{opacity:.55; cursor:not-allowed;}
+
+    .out{opacity:.85; font-size:14px;}
+    @media (max-width:520px){
+      .roulette{width:360px;height:360px;}
+      .track{inset:14px;}
+      .segment{
+        transform:
+          translate(-50%,-50%)
+          rotate(var(--a))
+          translateX(162px)
+          rotate(90deg);
+      }
+      .pointer{bottom:44px;}
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="stage">
+  <div class="board">
+    <div class="roulette">
+      <div class="track"></div>
+      <div id="spinLayer" class="spinLayer"></div>
       <div class="pointer"></div>
-      <div id="wheel" class="wheel"></div>
-      <div class="center">SPIN</div>
     </div>
 
-    <button id="spinBtn">Drej hjulet</button>
-    <div class="result" id="result">—</div>
+    <!-- Valgfrit: spin-knap -->
+    <button id="spinBtn" class="btn">Spin (demo)</button>
+    <div id="out" class="out">—</div>
   </div>
 
   <script>
-    const wheel = document.getElementById("wheel");
+    const spinLayer = document.getElementById("spinLayer");
     const btn = document.getElementById("spinBtn");
-    const result = document.getElementById("result");
+    const out = document.getElementById("out");
 
-    // “for sjov” segmenter (10 segmenter i dette eksempel)
-    const segments = [
-      "Rød", "Blå", "Sort", "Rød", "Blå",
-      "Sort", "Rød", "Blå", "Sort", "Rød"
-    ];
-    const segmentAngle = 360 / segments.length;
+    // Farvemønsteret (54 dashes) matchet til billedet:
+    // G=grå, R=rød, B=blå, O=guld
+    const pattern = "GRGRGBOBGRGRGRGBGBGRGRGRGBGBGRGRGRGRGRGBGBGRGRGRGBGBGR";
 
-    let currentRotation = 0;
+    const cssColor = {
+      G: "var(--g)",
+      R: "var(--r)",
+      B: "var(--b)",
+      O: "var(--o)"
+    };
 
+    const N = pattern.length;
+    const step = 360 / N;
+
+    // Byg segmenterne
+    for (let i = 0; i < N; i++) {
+      const seg = document.createElement("div");
+      seg.className = "segment";
+      seg.style.setProperty("--a", `${i * step}deg`);
+      seg.style.background = cssColor[pattern[i]];
+      spinLayer.appendChild(seg);
+    }
+
+    // (Valgfrit) “spin” der stopper et tilfældigt sted under pilen nederst
+    let rotation = 0;
     btn.addEventListener("click", () => {
       btn.disabled = true;
-      result.textContent = "Spinner…";
+      out.textContent = "Spinner…";
 
-      // tilfældig vinder-segment
-      const winnerIndex = Math.floor(Math.random() * segments.length);
+      const winner = Math.floor(Math.random() * N);
+      const targetAngle = winner * step;      // dash vinkel (0° = højre)
+      const pointerAngle = 90;               // nederst på skærmen
+      const current = ((rotation % 360) + 360) % 360;
+      const needed = pointerAngle - ((targetAngle + current) % 360);
 
-      // spin mange omgange + land på vinder
-      const extraSpins = 6 * 360; // 6 hele omgange
-      // Pointer er ved toppen (0°). Vi vil have midten af segmentet under pointer:
-      const targetAngle = (winnerIndex * segmentAngle) + segmentAngle / 2;
+      rotation += 360 * 6 + needed;          // 6 omgange + justering
+      spinLayer.style.transform = `rotate(${rotation}deg)`;
 
-      // Vi roterer hjulet “baglæns” for at få target under pointer
-      const newRotation = currentRotation + extraSpins - targetAngle;
-
-      currentRotation = newRotation;
-      wheel.style.transform = `rotate(${newRotation}deg)`;
-
-      // når transition er færdig:
       setTimeout(() => {
-        result.textContent = `Resultat: ${segments[winnerIndex]} (segment ${winnerIndex + 1})`;
+        out.textContent = `Stop: ${pattern[winner]} (G=grå, R=rød, B=blå, O=guld)`;
         btn.disabled = false;
-      }, 4100);
+      }, 3900);
     });
   </script>
 </body>
 </html>
-
