@@ -10,3 +10,109 @@
     <p></p>
   </body>
 </html>
+
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roulette prototype</title>
+  <style>
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      background:#14131a; color:#eaeaf0; font-family:system-ui, sans-serif;
+    }
+    .wrap{ display:grid; gap:16px; justify-items:center; }
+    .stage{ position:relative; width:320px; height:320px; }
+    .wheel{
+      width:100%; height:100%;
+      border-radius:50%;
+      border:10px solid #2a2933;
+      /* simple “segments” look */
+      background: conic-gradient(
+        #d44 0 10%, #2bb 10% 20%, #555 20% 30%, #d44 30% 40%,
+        #2bb 40% 50%, #555 50% 60%, #d44 60% 70%, #2bb 70% 80%,
+        #555 80% 90%, #d44 90% 100%
+      );
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      transform: rotate(0deg);
+      transition: transform 4s cubic-bezier(.12,.9,.2,1);
+    }
+    .center{
+      position:absolute; inset:0; margin:auto;
+      width:70px; height:70px; border-radius:50%;
+      background:#1f1e28; border:8px solid #2a2933;
+      display:grid; place-items:center; font-weight:700;
+    }
+    .pointer{
+      position:absolute; top:-6px; left:50%;
+      width:0; height:0;
+      transform: translateX(-50%);
+      border-left:14px solid transparent;
+      border-right:14px solid transparent;
+      border-bottom:26px solid #ff4d6d;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.45));
+    }
+    button{
+      padding:10px 16px; border:0; border-radius:10px;
+      background:#ff4d6d; color:white; font-weight:700;
+      cursor:pointer;
+    }
+    button:disabled{ opacity:.5; cursor:not-allowed; }
+    .result{ opacity:.85; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="stage">
+      <div class="pointer"></div>
+      <div id="wheel" class="wheel"></div>
+      <div class="center">SPIN</div>
+    </div>
+
+    <button id="spinBtn">Drej hjulet</button>
+    <div class="result" id="result">—</div>
+  </div>
+
+  <script>
+    const wheel = document.getElementById("wheel");
+    const btn = document.getElementById("spinBtn");
+    const result = document.getElementById("result");
+
+    // “for sjov” segmenter (10 segmenter i dette eksempel)
+    const segments = [
+      "Rød", "Blå", "Sort", "Rød", "Blå",
+      "Sort", "Rød", "Blå", "Sort", "Rød"
+    ];
+    const segmentAngle = 360 / segments.length;
+
+    let currentRotation = 0;
+
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      result.textContent = "Spinner…";
+
+      // tilfældig vinder-segment
+      const winnerIndex = Math.floor(Math.random() * segments.length);
+
+      // spin mange omgange + land på vinder
+      const extraSpins = 6 * 360; // 6 hele omgange
+      // Pointer er ved toppen (0°). Vi vil have midten af segmentet under pointer:
+      const targetAngle = (winnerIndex * segmentAngle) + segmentAngle / 2;
+
+      // Vi roterer hjulet “baglæns” for at få target under pointer
+      const newRotation = currentRotation + extraSpins - targetAngle;
+
+      currentRotation = newRotation;
+      wheel.style.transform = `rotate(${newRotation}deg)`;
+
+      // når transition er færdig:
+      setTimeout(() => {
+        result.textContent = `Resultat: ${segments[winnerIndex]} (segment ${winnerIndex + 1})`;
+        btn.disabled = false;
+      }, 4100);
+    });
+  </script>
+</body>
+</html>
+
