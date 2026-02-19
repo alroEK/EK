@@ -60,19 +60,33 @@
         rotate(90deg);
       box-shadow: 0 2px 6px rgba(0,0,0,.25);
     }
+    
+    :root{
+  --bg:   #262230;
+  --gap:  #33313a;
+  --g:    #505050;
+  --r:    #c83048;
+  --b:    #40b0d8;
+  --o:    #f8c870;
 
-    /* Pil nederst */
-    .pointer{
-      position:absolute;
-      left:50%;
-      bottom:54px;
-      transform: translateX(-50%);
-      width:0; height:0;
-      border-left:12px solid transparent;
-      border-right:12px solid transparent;
-      border-bottom:22px solid var(--r); /* peger OP */
-      filter: drop-shadow(0 8px 10px rgba(0,0,0,.35));
-    }
+  --p: var(--g);  /* <- NY: pointer-farve (starter grå) */
+}
+
+/* Pil nederst (nu peger den NED) */
+.pointer{
+  position:absolute;
+  left:50%;
+  bottom:54px;
+  transform: translateX(-50%);
+  width:0; height:0;
+  border-left:12px solid transparent;
+  border-right:12px solid transparent;
+
+  border-top:22px solid var(--p);   /* <- NY: peger NED + bruger --p */
+  /* fjern border-bottom */
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.35));
+}
+
 
     /* (Valgfrit) lille klik-knap */
     .btn{
@@ -159,6 +173,7 @@
       spinLayer.style.transform = `rotate(${rotation}deg)`;
 
       setTimeout(() => {
+        document.documentElement.style.setProperty("--p", cssColor[pattern[winner]]);
         out.textContent = `Stop: ${pattern[winner]} (G=grå, R=rød, B=blå, O=guld)`;
         btn.disabled = false;
       }, 3900);
