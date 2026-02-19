@@ -1,12 +1,1 @@
-<!doctype html>
-<html lang="da">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Min side</title>
-  </head>
-  <body>
-    <h1>Hej fra GitHub Pages!</h1>
-    <p>Hvis du kan se det her, virker det.</p>
-  </body>
-</html>
+
